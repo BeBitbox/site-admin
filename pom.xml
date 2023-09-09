@@ -15,7 +15,21 @@
 	<description>Site administration</description>
 	<properties>
 		<java.version>20</java.version>
+		<paseq-maven-plugin.version>0.1.1</paseq-maven-plugin.version>
+		<aws.java.sdk.version>2.20.143</aws.java.sdk.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws.java.sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -26,6 +40,31 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- AWS -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>netty-nio-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>software.amazon.awssdk</groupId>
+					<artifactId>apache-client</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sso</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ssooidc</artifactId>
+		</dependency>
+
+		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -38,6 +77,73 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.maciejwalkowiak.paseq</groupId>
+				<artifactId>paseq-maven-plugin</artifactId>
+				<version>${paseq-maven-plugin.version}</version>
+				<!-- configuration for building the package -->
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<task>
+									<exec>
+										<directory>src/main/frontend</directory>
+										<command>npm install</command>
+									</exec>
+								</task>
+								<task>
+									<exec>
+										<directory>src/main/frontend</directory>
+										<command>npm run build</command>
+									</exec>
+								</task>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>dev</id>
+						<!-- configuration for running in dev mode with ./mvnw paseq:exec@dev -->
+						<configuration>
+							<tasks>
+								<!-- first run npm install -->
+								<task>
+									<exec>
+										<directory>src/main/frontend</directory>
+										<command>npm install</command>
+									</exec>
+								</task>
+								<!-- then start watch task in the background and output the result to `src/main/resources/static/main.css` -->
+								<task>
+									<async>true</async>
+									<exec>
+										<directory>src/main/frontend</directory>
+										<command>npm run watch -- -o ../resources/static/main.css</command>
+									</exec>
+								</task>
+								<!--
+                                optionally post-processed CSS file can also be generated in `target` directory.
+                                Changes to main.css will trigger live reload without a need to recompile the project in Intellij IDEA
+                                -->
+								<task>
+									<async>true</async>
+									<exec>
+										<directory>src/main/frontend</directory>
+										<command>npm run watch -- -o ${project.build.directory}/classes/static/main.css</command>
+									</exec>
+								</task>
+								<task>
+									<goals>spring-boot:run</goals>
+								</task>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
