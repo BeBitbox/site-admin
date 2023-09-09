@@ -11,7 +11,7 @@
 	<groupId>be.bitbox.site.admin</groupId>
 	<artifactId>site-admin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>administratie</name>
+	<name>site-admin</name>
 	<description>Site administration</description>
 	<properties>
 		<java.version>20</java.version>
