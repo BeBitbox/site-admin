@@ -28,4 +28,13 @@ public class Puppy {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "Puppy{" +
+                "name='" + name + '\'' +
+                ", photo='" + photo + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

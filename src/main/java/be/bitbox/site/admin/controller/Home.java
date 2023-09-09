@@ -4,14 +4,15 @@ import be.bitbox.site.admin.model.SiteData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 @Controller
 public class Home {
@@ -30,19 +31,32 @@ public class Home {
                 .build();
     }
 
-    @GetMapping("/")
+    @GetMapping("/meulemeershoeve")
     public String hello(Model model) {
         try (var s3ObjectInputStream = s3Client.getObject(getObjectRequest)) {
             ObjectMapper objectMapper = new ObjectMapper();
-            var data = objectMapper.readValue(s3ObjectInputStream, SiteData.class);
+            var siteData = objectMapper.readValue(s3ObjectInputStream, SiteData.class);
 
-            model.addAttribute("upperTitle", data.getUpperTitle());
-            model.addAttribute("underTitle", data.getUnderTitle());
-            model.addAttribute("information", data.getInformation());
+            model.addAttribute("siteData", siteData);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return "hello";
+        return "meulemeershoeve";
     }
+
+    @PostMapping("/submit")
+    public String doCreateUser(@ModelAttribute("siteData") SiteData siteData,
+                               BindingResult bindingResult,
+                               Model model) {
+        if (bindingResult.hasErrors()) {
+            System.err.println("ERROR " + bindingResult);
+            return "redirect:/?success=false";
+        }
+
+        System.out.println(siteData);
+
+        return "redirect:/?success=true";
+    }
+
 }
 

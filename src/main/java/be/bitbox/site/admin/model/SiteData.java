@@ -39,4 +39,14 @@ public class SiteData {
     public void setPuppies(List<Puppy> puppies) {
         this.puppies = puppies;
     }
+
+    @Override
+    public String toString() {
+        return "SiteData{" +
+                "upperTitle='" + upperTitle + '\'' +
+                ", underTitle='" + underTitle + '\'' +
+                ", information='" + information + '\'' +
+                ", puppies=" + puppies +
+                '}';
+    }
 }
