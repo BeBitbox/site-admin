@@ -3,50 +3,90 @@ package be.bitbox.site.admin.model;
 import java.util.List;
 
 public class SiteData {
-    private String upperTitle;
-    private String underTitle;
-    private String information;
-    private List<Puppy> puppies;
+    private TextBlock upperTitle;
+    private TextBlock underTitle;
+    private TextBlock aboutUs;
+    private TextBlock vision;
+    private List<Nest> nesten;
+    private TextBlock goldenRetriever;
+    private TextBlock bernerSennen;
+    private List<String> fotos;
 
-    public String getUpperTitle() {
+    public TextBlock getUpperTitle() {
         return upperTitle;
     }
 
-    public void setUpperTitle(String upperTitle) {
+    public void setUpperTitle(TextBlock upperTitle) {
         this.upperTitle = upperTitle;
     }
 
-    public String getUnderTitle() {
+    public TextBlock getUnderTitle() {
         return underTitle;
     }
 
-    public void setUnderTitle(String underTitle) {
+    public void setUnderTitle(TextBlock underTitle) {
         this.underTitle = underTitle;
     }
 
-    public String getInformation() {
-        return information;
+    public TextBlock getAboutUs() {
+        return aboutUs;
     }
 
-    public void setInformation(String information) {
-        this.information = information;
+    public void setAboutUs(TextBlock aboutUs) {
+        this.aboutUs = aboutUs;
     }
 
-    public List<Puppy> getPuppies() {
-        return puppies;
+    public TextBlock getVision() {
+        return vision;
     }
 
-    public void setPuppies(List<Puppy> puppies) {
-        this.puppies = puppies;
+    public void setVision(TextBlock vision) {
+        this.vision = vision;
+    }
+
+    public List<Nest> getNesten() {
+        return nesten;
+    }
+
+    public void setNesten(List<Nest> nesten) {
+        this.nesten = nesten;
+    }
+
+    public TextBlock getGoldenRetriever() {
+        return goldenRetriever;
+    }
+
+    public void setGoldenRetriever(TextBlock goldenRetriever) {
+        this.goldenRetriever = goldenRetriever;
+    }
+
+    public TextBlock getBernerSennen() {
+        return bernerSennen;
+    }
+
+    public void setBernerSennen(TextBlock bernerSennen) {
+        this.bernerSennen = bernerSennen;
+    }
+
+    public List<String> getFotos() {
+        return fotos;
+    }
+
+    public void setFotos(List<String> fotos) {
+        this.fotos = fotos;
     }
 
     @Override
     public String toString() {
         return "SiteData{" +
-                "upperTitle='" + upperTitle + '\'' +
-                ", underTitle='" + underTitle + '\'' +
-                ", information='" + information + '\'' +
-                ", puppies=" + puppies +
+                "upperTitle=" + upperTitle +
+                ", underTitle=" + underTitle +
+                ", aboutUs=" + aboutUs +
+                ", vision=" + vision +
+                ", nesten=" + nesten +
+                ", goldenRetriever=" + goldenRetriever +
+                ", bernerSennen=" + bernerSennen +
+                ", fotos=" + fotos +
                 '}';
     }
 }

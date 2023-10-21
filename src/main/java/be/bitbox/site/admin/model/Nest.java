@@ -1,9 +1,9 @@
 package be.bitbox.site.admin.model;
 
-public class Puppy {
+public class Nest {
     private String name;
-    private String photo;
     private String description;
+    private String image;
 
     public String getName() {
         return name;
@@ -11,14 +11,6 @@ public class Puppy {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
     }
 
     public String getDescription() {
@@ -29,12 +21,20 @@ public class Puppy {
         this.description = description;
     }
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     @Override
     public String toString() {
-        return "Puppy{" +
+        return "Nest{" +
                 "name='" + name + '\'' +
-                ", photo='" + photo + '\'' +
                 ", description='" + description + '\'' +
+                ", image='" + image + '\'' +
                 '}';
     }
 }
