@@ -1,47 +1,31 @@
 package be.bitbox.site.admin.controller;
 
+import be.bitbox.site.admin.Util;
+import be.bitbox.site.admin.model.Nest;
 import be.bitbox.site.admin.model.SiteData;
 import be.bitbox.site.admin.model.TextBlock;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import be.bitbox.site.admin.service.S3Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 public class Home {
+    private final S3Service s3Service;
+    private static final Logger LOG = LoggerFactory.getLogger(Home.class);
 
-    private final S3Client s3Client;
-    private final GetObjectRequest getObjectRequest;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final PutObjectRequest putObjectRequest;
-
-
-    public Home() {
-        this.s3Client = S3Client.builder().region(Region.EU_WEST_3).build();
-        String bucketName = "be.meulemeershoeve";
-        String key = "data.json";
-
-        getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
-
-        putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .build();
+    public Home(S3Service s3Service) {
+        this.s3Service = s3Service;
     }
 
     @GetMapping("/meulemeershoeve")
@@ -51,43 +35,144 @@ public class Home {
 
     @GetMapping("/textblock")
     public String hello(Model model, @RequestParam(value = "item") String item) {
-        var siteData = readSiteData();
-        TextBlock data = getTextBlock(item, siteData);
+        var siteData = s3Service.readSiteData();
+        var data = getTextBlock(item, siteData);
 
         model.addAttribute("textblock", data);
         return "textblock";
     }
 
-    private SiteData readSiteData() {
-        try (var s3ObjectInputStream = s3Client.getObject(getObjectRequest)) {
-            return objectMapper.readValue(s3ObjectInputStream, SiteData.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @PostMapping("/submittextblock")
     public String doCreateUser(@ModelAttribute("textblock") TextBlock textBlock,
-                               @RequestParam(value = "item", defaultValue = "uppertitle") String item,
-                               BindingResult bindingResult,
-                               Model model) {
+                               @RequestParam(value = "item") String item,
+                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            System.err.println("ERROR " + bindingResult);
+            LOG.error("ERROR {}", bindingResult);
             return "redirect:/meulemeershoeve?success=false";
         }
 
-        var siteData = readSiteData();
+        var siteData = s3Service.readSiteData();
         TextBlock data = getTextBlock(item, siteData);
 
         data.setText(textBlock.getText());
         data.setShowMobile(textBlock.isShowMobile());
 
-        try {
-            s3Client.putObject(putObjectRequest, RequestBody.fromString(objectMapper.writeValueAsString(siteData)));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        s3Service.writeSiteData(siteData);
         return "redirect:/meulemeershoeve?success=true";
+    }
+
+    @GetMapping("/upload")
+    public String uploadPage(Model model) {
+        var siteData = s3Service.readSiteData();
+
+        Map<String, String> imageMap = siteData.getFotos().stream().collect(Collectors.toMap(
+                imageURL -> imageURL.substring(imageURL.lastIndexOf('/') + 1),      // Filename as key
+                imageURL -> imageURL                                                            // Full URL as value
+        ));
+        model.addAttribute("imageMap", imageMap);
+        return "upload";
+    }
+
+    @PostMapping("/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+        boolean success = s3Service.uploadFile(file);
+
+        if (success) {
+            var siteData = s3Service.readSiteData();
+            siteData.getFotos().add("https://s3.eu-west-3.amazonaws.com/be.meulemeershoeve/images/" + file.getOriginalFilename());
+            s3Service.writeSiteData(siteData);
+            redirectAttributes.addFlashAttribute("message", "Foto opgeladen " + file.getOriginalFilename());
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Foto werd niet opgeladen: " + file.getOriginalFilename());
+        }
+
+        return "redirect:/upload";
+    }
+
+    @GetMapping("/delete/{filename}")
+    public String deleteFile(@PathVariable String filename, RedirectAttributes redirectAttributes) {
+        boolean success = s3Service.deleteFile(filename);
+
+        var siteData = s3Service.readSiteData();
+        List<String> fotos = siteData.getFotos().stream()
+                .filter(url -> !url.endsWith(filename))
+                .toList();
+
+        siteData.setFotos(fotos);
+        s3Service.writeSiteData(siteData);
+
+        if (success) {
+            redirectAttributes.addFlashAttribute("message", "Successfully deleted " + filename);
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Failed to delete " + filename);
+        }
+
+        return "redirect:/upload";
+    }
+
+    @GetMapping("/nest")
+    public String uploadNest(Model model) {
+        var siteData = s3Service.readSiteData();
+
+        model.addAttribute("nesten", siteData.getNesten());
+        return "nest";
+    }
+
+    @PostMapping("/nest")
+    public String uploadNest(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+        boolean success = s3Service.uploadFile(file);
+
+        if (success) {
+            var siteData = s3Service.readSiteData();
+            var nest = new Nest();
+            nest.setImage("https://s3.eu-west-3.amazonaws.com/be.meulemeershoeve/images/" + file.getOriginalFilename());
+            nest.setDescription("omschrijving");
+            nest.setName("naam");
+            nest.setUuid(UUID.randomUUID().toString());
+            siteData.getNesten().add(nest);
+            s3Service.writeSiteData(siteData);
+            redirectAttributes.addFlashAttribute("message", "Nest gemaakt " + file.getOriginalFilename());
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Nest werd niet gemaakt: " + file.getOriginalFilename());
+        }
+
+        return "redirect:/nest";
+    }
+
+    @PostMapping("/updateNest")
+    public String updateNest(@ModelAttribute("nest") Nest nest) {
+        var siteData = s3Service.readSiteData();
+        var nestToUpdate = siteData.getNesten().stream()
+                .filter(n -> nest.getUuid().equals(n.getUuid()))
+                .findAny()
+                .orElseThrow();
+        nestToUpdate.setName(nest.getName());
+        nestToUpdate.setDescription(nest.getDescription());
+
+        s3Service.writeSiteData(siteData);
+        return "redirect:/nest";
+    }
+
+    @GetMapping("/deleteNest/{uuid}")
+    public String deleteNest(@PathVariable String uuid, RedirectAttributes redirectAttributes) {
+        var siteData = s3Service.readSiteData();
+        var nestToDelete = siteData.getNesten().stream()
+                .filter(nest -> nest.getUuid().equals(uuid))
+                .findAny()
+                .orElseThrow();
+
+        boolean success = s3Service.deleteFile(Util.getLastElementOfUrl(nestToDelete.getImage()));
+        siteData.getNesten().remove(nestToDelete);
+
+        s3Service.writeSiteData(siteData);
+
+        if (success) {
+            redirectAttributes.addFlashAttribute("message", "Verwijderd nest " + nestToDelete.getName());
+        } else {
+            redirectAttributes.addFlashAttribute("message", "Nest werd niet verwijderd " + nestToDelete.getName());
+        }
+
+        return "redirect:/nest";
     }
 
     private static TextBlock getTextBlock(String item, SiteData siteData) {

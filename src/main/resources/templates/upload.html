@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="nl">
+<head>
+    <title>Fotobeheer</title>
+    <link th:href="@{/main.css}" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 h-screen font-sans">
+
+<div class="container mx-auto mt-10">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-xl font-bold mb-4">Beheer uw foto's</h1>
+
+        <p class="mt-4 text-green-500" th:text="${message}"></p>
+
+        <div class="mt-8">
+            <h2 class="text-lg font-bold mb-4">Opgeladen foto's</h2>
+            <ul>
+                <li th:each="entry : ${imageMap}">
+                    <div class="flex items-center justify-between border-b py-2">
+                        <!-- Display the image -->
+                        <img th:src="${entry.value}" alt="Uploaded Image" class="w-32 h-32 object-cover rounded shadow-lg">
+                        <!-- Display the filename -->
+                        <span th:text="${entry.key}" class="ml-4"></span>
+                        <!-- Delete link -->
+                        <a th:href="@{'/delete/' + ${entry.key}}" class="text-red-500">Verwijder</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <form method="post" th:action="@{/upload}" enctype="multipart/form-data">
+            <div class="mb-4">
+                <input type="file" name="file" required class="px-3 py-2 border rounded w-full">
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Upload</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
