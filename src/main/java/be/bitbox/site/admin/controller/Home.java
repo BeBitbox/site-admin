@@ -140,7 +140,7 @@ public class Home {
     }
 
     @PostMapping("/updateNest")
-    public String updateNest(@ModelAttribute("nest") Nest nest) {
+    public String updateNest(@ModelAttribute("nest") Nest nest, RedirectAttributes redirectAttributes) {
         var siteData = s3Service.readSiteData();
         var nestToUpdate = siteData.getNesten().stream()
                 .filter(n -> nest.getUuid().equals(n.getUuid()))
@@ -150,6 +150,7 @@ public class Home {
         nestToUpdate.setDescription(nest.getDescription());
 
         s3Service.writeSiteData(siteData);
+        redirectAttributes.addFlashAttribute("message", "Nest " + nest.getName() + " bewaard");
         return "redirect:/nest";
     }
 
