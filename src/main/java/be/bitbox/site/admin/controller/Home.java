@@ -7,6 +7,7 @@ import be.bitbox.site.admin.model.TextBlock;
 import be.bitbox.site.admin.service.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,9 +21,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
+@EnableMethodSecurity
 public class Home {
-    private final S3Service s3Service;
     private static final Logger LOG = LoggerFactory.getLogger(Home.class);
+
+    private final S3Service s3Service;
 
     public Home(S3Service s3Service) {
         this.s3Service = s3Service;
@@ -174,6 +177,12 @@ public class Home {
         }
 
         return "redirect:/nest";
+    }
+
+    @GetMapping("/accessDenied")
+    public String accessDenied(Model model, @RequestParam(value = "email") String email) {
+        model.addAttribute("email", email);
+        return "accessDenied";
     }
 
     private static TextBlock getTextBlock(String item, SiteData siteData) {

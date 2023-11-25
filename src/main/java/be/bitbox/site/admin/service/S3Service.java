@@ -1,6 +1,5 @@
 package be.bitbox.site.admin.service;
 
-import be.bitbox.site.admin.controller.Home;
 import be.bitbox.site.admin.model.SiteData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
