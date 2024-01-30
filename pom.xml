@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.5</version>
+		<version>3.2.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>be.bitbox.site.admin</groupId>
@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<paseq-maven-plugin.version>0.1.1</paseq-maven-plugin.version>
-		<aws.java.sdk.version>2.21.27</aws.java.sdk.version>
+		<aws.java.sdk.version>2.23.12</aws.java.sdk.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

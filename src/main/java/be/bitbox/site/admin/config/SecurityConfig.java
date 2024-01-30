@@ -25,9 +25,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
-    private final static List<String> ALLOWED_EMAILS = List.of("franky@bitbox.be", "anneleen.deroo@curando.be");
+    private final static List<String> ALLOWED_EMAILS = List.of("franky@bitbox.be", "anneleen.deroo@curando.be", "a.ashley.van.laer@gmail.com", "franky.vertriest@gmail.com");
     private final static Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
-
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
