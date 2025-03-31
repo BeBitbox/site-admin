@@ -7,12 +7,19 @@
 </head>
 <body>
 <div class="container mx-auto p-4">
-    <div id="message" th:if="${param.success != null}">
-        <div class="bg-green-700 text-white p-5 rounded-2xl" th:if="${param.success[0]} == 'true'">
+    <div id="message" th:if="${success != 'NONE'}">
+        <div class="bg-green-700 text-white p-5 rounded-2xl" th:if="${success == 'SUCCESS'}">
             Goed bewaard!
         </div>
-        <div class="bg-red-700 text-white p-5 rounded-2xl" th:if="${param.success[0]} != 'true'">
+        <div class="bg-red-700 text-white p-5 rounded-2xl" th:if="${success == 'FAILED'}">
             Fout bij het opslaan. Contacteer Franky
+        </div>
+        <br><br><br>
+    </div>
+    
+    <div id="messageDeploy" th:if="${deploy == 'deploying'}">
+        <div class="bg-orange-700 text-white p-5 rounded-2xl">
+            De website is momenteel aan het deployen. Dit duurt normaal paar minuten.
         </div>
         <br><br><br>
     </div>

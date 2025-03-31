@@ -4,21 +4,25 @@ import be.bitbox.site.admin.Util;
 import be.bitbox.site.admin.model.Nest;
 import be.bitbox.site.admin.model.SiteData;
 import be.bitbox.site.admin.model.TextBlock;
+import be.bitbox.site.admin.service.GitHubService;
 import be.bitbox.site.admin.service.S3Service;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Controller
 @EnableMethodSecurity
@@ -26,14 +30,35 @@ public class Home {
     private static final Logger LOG = LoggerFactory.getLogger(Home.class);
 
     private final S3Service s3Service;
+    private final GitHubService gitHubService;
+    private SaveResult saveResult = SaveResult.NONE;
 
-    public Home(S3Service s3Service) {
+    public Home(S3Service s3Service, GitHubService gitHubService) {
         this.s3Service = s3Service;
+        this.gitHubService = gitHubService;
     }
 
     @GetMapping("/meulemeershoeve")
-    public String index() {
+    public String index(Model model) {
+        var deploy = isGitHubDeploying();
+
+        model.addAttribute("deploy", deploy ? "deploying" : "not deploying");
+        model.addAttribute("success", saveResult.name());
+        saveResult = SaveResult.NONE;
         return "meulemeershoeve";
+    }
+
+    private boolean isGitHubDeploying() {
+        var deploy = false;
+        try {
+            deploy = gitHubService.logRunningWorkflowRuns() > 0;
+        } catch (Exception e) {
+            LOG.error("Error triggering GitHub", e);
+        }
+        if (deploy) {
+            LOG.info("currently running workflow runs");
+        }
+        return deploy;
     }
 
     @GetMapping("/textblock")
@@ -51,7 +76,8 @@ public class Home {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             LOG.error("ERROR {}", bindingResult);
-            return "redirect:/meulemeershoeve?success=false";
+            saveResult = SaveResult.FAILED;
+            return "redirect:/meulemeershoeve";
         }
 
         var siteData = s3Service.readSiteData();
@@ -60,8 +86,9 @@ public class Home {
         data.setText(textBlock.getText());
         data.setShowMobile(textBlock.isShowMobile());
 
-        s3Service.writeSiteData(siteData);
-        return "redirect:/meulemeershoeve?success=true";
+        deployWebsite(siteData);
+        saveResult = SaveResult.SUCCESS;
+        return "redirect:/meulemeershoeve";
     }
 
     @GetMapping("/upload")
@@ -83,7 +110,7 @@ public class Home {
         if (success) {
             var siteData = s3Service.readSiteData();
             siteData.getFotos().add("https://s3.eu-west-3.amazonaws.com/be.meulemeershoeve/images/" + file.getOriginalFilename());
-            s3Service.writeSiteData(siteData);
+            deployWebsite(siteData);
             redirectAttributes.addFlashAttribute("message", "Foto opgeladen " + file.getOriginalFilename());
         } else {
             redirectAttributes.addFlashAttribute("message", "Foto werd niet opgeladen: " + file.getOriginalFilename());
@@ -102,7 +129,7 @@ public class Home {
                 .toList();
 
         siteData.setFotos(fotos);
-        s3Service.writeSiteData(siteData);
+        deployWebsite(siteData);
 
         if (success) {
             redirectAttributes.addFlashAttribute("message", "Successfully deleted " + filename);
@@ -133,7 +160,7 @@ public class Home {
             nest.setName("naam");
             nest.setUuid(UUID.randomUUID().toString());
             siteData.getNesten().add(nest);
-            s3Service.writeSiteData(siteData);
+            deployWebsite(siteData);
             redirectAttributes.addFlashAttribute("message", "Nest gemaakt " + file.getOriginalFilename());
         } else {
             redirectAttributes.addFlashAttribute("message", "Nest werd niet gemaakt: " + file.getOriginalFilename());
@@ -152,7 +179,7 @@ public class Home {
         nestToUpdate.setName(nest.getName());
         nestToUpdate.setDescription(nest.getDescription());
 
-        s3Service.writeSiteData(siteData);
+        deployWebsite(siteData);
         redirectAttributes.addFlashAttribute("message", "Nest " + nest.getName() + " bewaard");
         return "redirect:/nest";
     }
@@ -168,7 +195,7 @@ public class Home {
         boolean success = s3Service.deleteFile(Util.getLastElementOfUrl(nestToDelete.getImage()));
         siteData.getNesten().remove(nestToDelete);
 
-        s3Service.writeSiteData(siteData);
+        deployWebsite(siteData);
 
         if (success) {
             redirectAttributes.addFlashAttribute("message", "Verwijderd nest " + nestToDelete.getName());
@@ -195,6 +222,24 @@ public class Home {
             case "bernersennen" -> siteData.getBernerSennen();
             default -> throw new UnsupportedOperationException("I don't know textblock " + item);
         };
+    }
+
+    private void deployWebsite(SiteData siteData) {
+        s3Service.writeSiteData(siteData);
+        try {
+            gitHubService.triggerGitHubAction();
+            while (!isGitHubDeploying()) {
+                Thread.sleep(500);
+            }
+        } catch (Exception e) {
+            LOG.error("Error triggering GitHub", e);
+        }
+    }
+
+    private enum SaveResult {
+        SUCCESS,
+        FAILED,
+        NONE
     }
 }
 
