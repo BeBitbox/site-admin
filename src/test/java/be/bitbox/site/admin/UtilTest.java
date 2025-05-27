@@ -13,4 +13,9 @@ class UtilTest {
         assertThat(Util.getLastElementOfUrl("foo")).isEqualTo("foo");
         assertThat(Util.getLastElementOfUrl(null)).isEqualTo("");
     }
+
+    @Test
+    void testGenerateRandomId () {
+        assertThat(Util.generateRandomId()).hasSize(10);
+    }
 }

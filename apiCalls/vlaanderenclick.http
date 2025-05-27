@@ -1,7 +1,25 @@
+#### Add e-mail
+POST http://localhost:8081/vlaanderen.click/add
+Content-Type: application/json
+
+{
+  "id": "jos@vermeulen.be"
+}
+
+#### Initialize user
+POST http://localhost:8081/vlaanderen.click/init
+Content-Type: application/json
+
+{
+  "id": "1E1JCoIlvx"
+}
+
+#### Register
 POST http://localhost:8081/vlaanderen.click/register
 Content-Type: application/json
 
 {
+  "id": "1E1JCoIlvx",
   "voornaam": "Jos",
   "achternaam": "Vermeulen",
   "email": "jos@vermeulen.be",
