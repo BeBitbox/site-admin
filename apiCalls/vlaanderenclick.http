@@ -1,0 +1,11 @@
+POST http://localhost:8081/vlaanderen.click/register
+Content-Type: application/json
+
+{
+  "voornaam": "Jos",
+  "achternaam": "Vermeulen",
+  "email": "jos@vermeulen.be",
+  "dienst": "Concierges"
+}
+
+###

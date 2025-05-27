@@ -36,6 +36,8 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/free"),
                                 new AntPathRequestMatcher("/css/**"),
                                 new AntPathRequestMatcher("/js/**"),
+                                new AntPathRequestMatcher("/vlaanderen.click/**"),
+                                new AntPathRequestMatcher("/actuator/**"),
                                 new AntPathRequestMatcher("/accessDenied"))
                         .permitAll()
                         .anyRequest().authenticated()
