@@ -2,7 +2,7 @@ package be.bitbox.site.admin.model;
 
 public class UserClick {
 
-  public static final String DELIMITER = ";";
+  public static final String DELIMITER = "\t";
   private String id;
   private String emailId;
   private boolean isSent;
@@ -13,7 +13,7 @@ public class UserClick {
   private String email;
   private String dienst;
   private String badgeNummer;
-  private String telefoonnummer;
+  private String telefoonNummer;
 
   public UserClick(String id, String emailId) {
     this.id = id;
@@ -62,8 +62,8 @@ public class UserClick {
     return badgeNummer;
   }
 
-  public String telefoonnummer() {
-    return telefoonnummer;
+  public String telefoonNummer() {
+    return telefoonNummer;
   }
   // endregion
 
@@ -100,8 +100,8 @@ public class UserClick {
     this.badgeNummer = badgeNummer;
   }
 
-  public void setTelefoonnummer(String telefoonnummer) {
-    this.telefoonnummer = telefoonnummer;
+  public void setTelefoonNummer(String telefoonNummer) {
+    this.telefoonNummer = telefoonNummer;
   }
   // endregion
 
@@ -122,7 +122,7 @@ public class UserClick {
     userClick.email = fields[7];
     userClick.dienst = fields[8];
     userClick.badgeNummer = fields[9];
-    userClick.telefoonnummer = fields[10];
+    userClick.telefoonNummer = fields[10];
     return userClick;
   }
 
@@ -131,7 +131,7 @@ public class UserClick {
     return id + DELIMITER + emailId + DELIMITER + isSent + DELIMITER
         + userAgent + DELIMITER + ip + DELIMITER
         + voornaam + DELIMITER + achternaam + DELIMITER + email + DELIMITER + dienst + DELIMITER
-        + badgeNummer + DELIMITER + telefoonnummer;
+        + badgeNummer + DELIMITER + telefoonNummer;
   }
 
   @Override

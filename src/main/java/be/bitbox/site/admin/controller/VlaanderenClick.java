@@ -35,12 +35,23 @@ public class VlaanderenClick {
 
   @PostMapping("/vlaanderen.click/register")
   public void registerVlaanderenClick(@RequestBody VlaanderenClickRegister vlaanderenClickRegister) {
-    log.info("Received click for {}", vlaanderenClickRegister);
+    log.info("Received register for {}", vlaanderenClickRegister);
 
     userCollector.update(vlaanderenClickRegister);
   }
 
+  @PostMapping("/vlaanderen.click/stap2")
+  public void stap2VlaanderenClick(@RequestBody VlaanderenClickStap2 vlaanderenClickStap2) {
+    log.info("Received stap2 for {}", vlaanderenClickStap2);
+
+    userCollector.update(vlaanderenClickStap2);
+  }
+
   public record VlaanderenClickRegister(String id, String voornaam, String achternaam, String email, String dienst) {
+
+  }
+
+  public record VlaanderenClickStap2(String id, String badgeNummer, String telefoonNummer) {
 
   }
 

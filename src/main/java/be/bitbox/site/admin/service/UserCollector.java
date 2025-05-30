@@ -2,6 +2,7 @@ package be.bitbox.site.admin.service;
 
 import be.bitbox.site.admin.Util;
 import be.bitbox.site.admin.controller.VlaanderenClick.VlaanderenClickRegister;
+import be.bitbox.site.admin.controller.VlaanderenClick.VlaanderenClickStap2;
 import be.bitbox.site.admin.model.UserClick;
 import be.bitbox.site.admin.persistance.UserClickDAO;
 import org.slf4j.Logger;
@@ -65,4 +66,17 @@ public class UserCollector {
     userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
+  public void update(VlaanderenClickStap2 vlaanderenClickStap2) {
+    var userClicks = userClickDAO.getUserClicksFromCSV();
+
+    var userClick = userClicks.stream()
+        .filter(click -> click.id().equals(vlaanderenClickStap2.id()))
+        .findAny()
+        .orElseThrow();
+
+    userClick.setBadgeNummer(vlaanderenClickStap2.badgeNummer());
+    userClick.setTelefoonNummer(vlaanderenClickStap2.telefoonNummer());
+
+    userClickDAO.saveUserClicksToCSV(userClicks);
+  }
 }

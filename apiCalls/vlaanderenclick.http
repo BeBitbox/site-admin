@@ -3,7 +3,7 @@ POST http://localhost:8081/vlaanderen.click/add
 Content-Type: application/json
 
 {
-  "id": "jos@vermeulen.be"
+  "id": "josé@vermeulen.be"
 }
 
 #### Initialize user
@@ -11,7 +11,7 @@ POST http://localhost:8081/vlaanderen.click/init
 Content-Type: application/json
 
 {
-  "id": "1E1JCoIlvx"
+  "id": "SVPkFCUoA8"
 }
 
 #### Register
@@ -19,7 +19,7 @@ POST http://localhost:8081/vlaanderen.click/register
 Content-Type: application/json
 
 {
-  "id": "1E1JCoIlvx",
+  "id": "SVPkFCUoA8",
   "voornaam": "Jos",
   "achternaam": "Vermeulen",
   "email": "jos@vermeulen.be",
@@ -27,3 +27,11 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:8081/vlaanderen.click/stap2
+Content-Type: application/json
+
+{
+  "id": "SVPkFCUoA8",
+  "badgeNummer": "1245678903",
+  "telefoonNummer": "00000"
+}
