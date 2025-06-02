@@ -50,6 +50,31 @@ public class UserCollector {
     userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
+  public void updateBetalen(String id) {
+    var userClicks = userClickDAO.getUserClicksFromCSV();
+
+    var userClick = userClicks.stream()
+        .filter(click -> click.id().equals(id))
+        .findAny()
+        .orElseThrow();
+
+    userClick.setBetalingAfgehandeld(true);
+    userClickDAO.saveUserClicksToCSV(userClicks);
+  }
+
+  public void mailOpened(String id) {
+    var userClicks = userClickDAO.getUserClicksFromCSV();
+
+    userClicks.stream()
+        .filter(click -> click.id().equals(id))
+        .findAny()
+        .ifPresent(userClick -> {
+          userClick.setMailOpened(true);
+        });
+
+    userClickDAO.saveUserClicksToCSV(userClicks);
+  }
+
   public void update(VlaanderenClickRegister vlaanderenClickRegister) {
     var userClicks = userClickDAO.getUserClicksFromCSV();
 

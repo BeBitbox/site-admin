@@ -1,6 +1,7 @@
 package be.bitbox.site.admin.persistance;
 
 import static java.nio.file.Files.exists;
+import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import be.bitbox.site.admin.model.UserClick;
@@ -26,12 +27,23 @@ public class UserClickDAO {
 
   public UserClickDAO(@Value("${application.user.file.location}") String path) {
     this.path = path;
+    initializeFile();
+  }
+
+  private void initializeFile() {
+    var fileName = getFileName();
+    if (exists(get(fileName))) {
+      log.info("CSV file {} already exists", fileName);
+    } else {
+      saveUserClicksToCSV(new ArrayList<>());
+    }
   }
 
   public void saveUserClicksToCSV(List<UserClick> userClicks) {
     var fileName = getFileName();
     log.info("Saving user clicks to csv file {}", fileName);
     try (FileWriter writer = new FileWriter(fileName)) {
+      writer.append(UserClick.fieldNames()).append(System.lineSeparator());
       for (UserClick userClick : userClicks) {
         writer.append(userClick.toString())
             .append(System.lineSeparator());
@@ -50,12 +62,8 @@ public class UserClickDAO {
     var fileName = getFileName();
     log.info("Loading user clicks from csv file {}", fileName);
 
-    if (!exists(get(fileName))) {
-      return userClicks;
-    }
-
     try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-      String line;
+      var line = reader.readLine(); //Ignore the first line
       while ((line = reader.readLine()) != null) {
         if (!line.isBlank()) {
           userClicks.add(UserClick.fromString(line.trim()));
@@ -65,5 +73,16 @@ public class UserClickDAO {
       throw new RuntimeException("Failed to read user clicks from CSV", e);
     }
     return userClicks;
+  }
+
+  public byte[] getCSVFileAsBytes() {
+    var fileName = getFileName();
+    log.info("Converting csv file {} to byte array", fileName);
+
+    try {
+      return readAllBytes(get(fileName));
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to read the CSV file as bytes", e);
+    }
   }
 }

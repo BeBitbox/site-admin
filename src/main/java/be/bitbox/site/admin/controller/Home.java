@@ -1,9 +1,11 @@
 package be.bitbox.site.admin.controller;
 
 import be.bitbox.site.admin.Util;
+import be.bitbox.site.admin.config.SecurityConfig;
 import be.bitbox.site.admin.model.Nest;
 import be.bitbox.site.admin.model.SiteData;
 import be.bitbox.site.admin.model.TextBlock;
+import be.bitbox.site.admin.persistance.UserClickDAO;
 import be.bitbox.site.admin.service.GitHubService;
 import be.bitbox.site.admin.service.S3Service;
 import java.util.List;
@@ -12,6 +14,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,21 +38,59 @@ public class Home {
 
     private final S3Service s3Service;
     private final GitHubService gitHubService;
+    private final SecurityConfig securityConfig;
+    private final UserClickDAO userClickDAO;
     private SaveResult saveResult = SaveResult.NONE;
 
-    public Home(S3Service s3Service, GitHubService gitHubService) {
+    public Home(S3Service s3Service, GitHubService gitHubService, SecurityConfig securityConfig, UserClickDAO userClickDAO) {
         this.s3Service = s3Service;
         this.gitHubService = gitHubService;
+        this.securityConfig = securityConfig;
+      this.userClickDAO = userClickDAO;
+    }
+
+    @GetMapping("/")
+    public String startPage(Model model) {
+        model.addAttribute("meulemeershoeve", securityConfig.isMeulemeershoeveUser());
+        model.addAttribute("vlaanderenclick", securityConfig.isVlaanderenClickUser());
+        return "index";
     }
 
     @GetMapping("/meulemeershoeve")
-    public String index(Model model) {
+    public String meulemeershoeve(Model model) {
         var deploy = isGitHubDeploying();
 
         model.addAttribute("deploy", deploy ? "deploying" : "not deploying");
         model.addAttribute("success", saveResult.name());
         saveResult = SaveResult.NONE;
         return "meulemeershoeve";
+    }
+
+    @GetMapping("/phisher")
+    public String showPhisherPage() {
+        return "phisher";
+    }
+
+    @GetMapping("/downloadUserClickData")
+    public ResponseEntity<byte[]> downloadUserClickData() {
+        String csvFileName = "user_click_data.csv";
+        byte[] csvData;
+
+        try {
+            csvData = userClickDAO.getCSVFileAsBytes();
+        } catch (Exception e) {
+            LOG.error("Error fetching the CSV file: {}", csvFileName, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDisposition(ContentDisposition.builder("attachment")
+            .filename(csvFileName)
+            .build());
+
+        return new ResponseEntity<>(csvData, headers, HttpStatus.OK);
     }
 
     private boolean isGitHubDeploying() {
