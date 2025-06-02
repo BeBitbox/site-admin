@@ -3,7 +3,7 @@ POST http://localhost:8081/vlaanderen.click/add
 Content-Type: application/json
 
 {
-  "id": "test@vermeulen.be"
+  "id": "jos@bitbox.be"
 }
 
 #### Initialize user

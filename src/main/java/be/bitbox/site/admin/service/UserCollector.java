@@ -14,9 +14,11 @@ public class UserCollector {
 
   private static final Logger log = LoggerFactory.getLogger(UserCollector.class);
   private final UserClickDAO userClickDAO;
+  private final SESService sesService;
 
-  public UserCollector(UserClickDAO userClickDAO) {
+  public UserCollector(UserClickDAO userClickDAO, SESService sesService) {
     this.userClickDAO = userClickDAO;
+    this.sesService = sesService;
   }
 
   public void insert(String emailToSend) {
@@ -34,7 +36,9 @@ public class UserCollector {
     userClicks.add(userClick);
     userClickDAO.saveUserClicksToCSV(userClicks);
 
-    //TODO Sent with SES -> Update mail sent
+    sesService.sendEventInvitation(userClick.id(), userClick.emailId());
+    userClick.setSent(true);
+    userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
   public void update(String id, String userAgent, String ip) {
@@ -99,8 +103,8 @@ public class UserCollector {
         .findAny()
         .orElseThrow();
 
-    userClick.setBadgeNummer(vlaanderenClickStap2.badgeNummer());
-    userClick.setTelefoonNummer(vlaanderenClickStap2.telefoonNummer());
+    userClick.setBadgeNummer(vlaanderenClickStap2.badgenummer());
+    userClick.setTelefoonNummer(vlaanderenClickStap2.telefoon());
 
     userClickDAO.saveUserClicksToCSV(userClicks);
   }

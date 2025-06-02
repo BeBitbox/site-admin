@@ -159,7 +159,7 @@ public class UserClick {
     return "id" + DELIMITER + "emailId" + DELIMITER + "isSent" + DELIMITER
         + "mailOpened" + DELIMITER + "userAgent" + DELIMITER + "ip" + DELIMITER
         + "voornaam" + DELIMITER + "achternaam" + DELIMITER + "email" + DELIMITER + "dienst" + DELIMITER
-        + "badgeNummer" + DELIMITER + "telefoonNummer" + DELIMITER + "betalingAfgehandeld";
+        + "badgenummer" + DELIMITER + "telefoon" + DELIMITER + "betalingAfgehandeld";
   }
 
   @Override

@@ -87,7 +87,7 @@ public class VlaanderenClick {
 
   }
 
-  public record VlaanderenClickStap2(String id, String badgeNummer, String telefoonNummer) {
+  public record VlaanderenClickStap2(String id, String badgenummer, String telefoon) {
 
   }
 
