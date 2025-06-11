@@ -47,14 +47,13 @@ public class SESService {
                 box-shadow: 0 0 15px rgba(0,0,0,0.1);
               }
               .header {
-                background-color: #9333ea;
+                background-image: url(https://vlaanderen.click/zomerbar.png);
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
                 padding: 30px;
                 text-align: center;
                 color: white;
-              }
-              .header img {
-                max-width: 100px;
-                margin-bottom: 10px;
+                min-height: 250px;
               }
               .content {
                 padding: 30px;
@@ -62,10 +61,12 @@ public class SESService {
               h1 {
                 margin-top: 0;
                 color: #111827;
+                margin-top: 200px;
+                background-color: #FFCD1E;
               }
               .cta-button {
                 display: inline-block;
-                background-color: #9333ea;
+                background-color: #FFCD1E;
                 color: white;
                 padding: 12px 24px;
                 border-radius: 8px;
@@ -75,8 +76,9 @@ public class SESService {
               }
               .footer {
                 font-size: 12px;
-                color: #888888;
+                color: #FFFFFFF;
                 text-align: center;
+                background-color: #FFCD1E;
                 padding: 20px;
               }
               .snail {
@@ -95,17 +97,14 @@ public class SESService {
           <body>
             <div class="container">
               <div class="header">
-                <img src="https://www.vlaanderen.be/img/logo/vlaanderen-logo.svg" alt="vlaanderen.click logo" />
                 <h1>Gratis cocktail in de zomerbar!</h1>
               </div>
               <div class="content">
-                <p>Beste deelnemer,</p>
-                <p>We zijn verheugd om je uit te nodigen voor de allereerste zomerbar van <strong>vlaanderen.click</strong> in de laatste week van juni.
-                We kunnen hierbij gebruik maken van het uniek dakterras van de Belpaire.
-                </p>
-                <p>Gebruik onderstaande knop om jouw plaats te bevestigen en uw cocktail te reserveren:</p>
+                <p>Beste collega,</p>
+                <p>We zijn verheugd om je uit te nodigen voor de allereerste zomerbar van <strong>vlaanderen.click</strong> 🎉</p>
+                <p>In de week van 23 - 27 juni kan u de zomermaanden feestelijk inzetten met uw collega's op het dakterras van de Belpaire. Voor de eerste 200 geregistreerden zal er ook een gratis cocktail voorzien worden. Wacht dus niet te lang en <strong>click</strong> op onderstaande knop om je te registreren!</p>  
                 <a href="https://vlaanderen.click/$$ID$$/registreer" class="cta-button">Registreer nu</a>
-                <p>We zullen alvast uw cocktail koel zetten. Tot dan! 🎉</p>
+                <p>We houden uw cocktail alvast koel. Tot dan! 🍸</p>
                 <div class="snail">
                   <img src="https://vlaanderen.click/logo.png" alt="slakje" />
                 </div>

@@ -35,21 +35,23 @@ class UserClickDAOTest {
     assertThat(loadedClicks).hasSize(2);
 
     UserClick loadedSingleClick = loadedClicks.get(0);
+
     assertThat(loadedSingleClick.id()).isEqualTo(singleUserClick.id());
     assertThat(loadedSingleClick.emailId()).isEqualTo(singleUserClick.emailId());
     assertThat(loadedSingleClick.isSent()).isEqualTo(singleUserClick.isSent());
     assertThat(loadedSingleClick.mailOpened()).isEqualTo(singleUserClick.mailOpened());
-    assertThat(loadedSingleClick.userAgent()).isEqualTo(singleUserClick.userAgent());
-    assertThat(loadedSingleClick.ip()).isEqualTo(singleUserClick.ip());
+    assertThat(loadedSingleClick.webpageVisited()).isEqualTo(singleUserClick.webpageVisited());
     assertThat(loadedSingleClick.voornaam()).isEqualTo(singleUserClick.voornaam());
     assertThat(loadedSingleClick.achternaam()).isEqualTo(singleUserClick.achternaam());
     assertThat(loadedSingleClick.email()).isEqualTo(singleUserClick.email());
-    assertThat(loadedSingleClick.dienst()).isEqualTo(singleUserClick.dienst());
-    assertThat(loadedSingleClick.badgeNummer()).isEqualTo(singleUserClick.badgeNummer());
+    assertThat(loadedSingleClick.functie()).isEqualTo(singleUserClick.functie());
+    assertThat(loadedSingleClick.organisatie()).isEqualTo(singleUserClick.organisatie());
     assertThat(loadedSingleClick.telefoonNummer()).isEqualTo(singleUserClick.telefoonNummer());
-    assertThat(loadedSingleClick.betalingAfgehandeld()).isEqualTo(singleUserClick.betalingAfgehandeld());
-
-    UserClick loadedDummyClick = loadedClicks.get(1);
+    assertThat(loadedSingleClick.stap1()).isEqualTo(singleUserClick.stap1());
+    assertThat(loadedSingleClick.stap2()).isEqualTo(singleUserClick.stap2());
+    assertThat(loadedSingleClick.stap3()).isEqualTo(singleUserClick.stap3());
+    
+    var loadedDummyClick = loadedClicks.get(1);
     assertThat(loadedDummyClick.id()).isEqualTo(dummyUserClick.id());
     assertThat(loadedDummyClick.emailId()).isEqualTo(dummyUserClick.emailId());
   }
@@ -57,16 +59,18 @@ class UserClickDAOTest {
   private UserClick createSingleUserClick() {
     var userClick = new UserClick("test-id", "email-id");
     userClick.setSent(true);
-    userClick.setMailOpened(true);
-    userClick.setUserAgent("Agent 47;mozitlla");
-    userClick.setIp("1.2.3.4");
+    userClick.incrementMailOpened();
+    userClick.incrementMailOpened();
+    userClick.setWebpageVisited(true);
     userClick.setVoornaam("John");
     userClick.setAchternaam("Doe");
     userClick.setEmail("john.doe@example.com");
-    userClick.setDienst("Test Service");
-    userClick.setBadgeNummer("B12345");
+    userClick.setFunctie("Test Service");
+    userClick.setOrganisatie("Test RG");
     userClick.setTelefoonNummer("0123456789");
-    userClick.setBetalingAfgehandeld(false);
+    userClick.setStap1(true);
+    userClick.setStap2(true);
+    userClick.setStap3(true);
     return userClick;
   }
 

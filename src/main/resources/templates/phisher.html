@@ -19,21 +19,28 @@
               name="email"
               required
               class="mt-1 block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-300 focus:border-green-500"
-              placeholder="Vul een e-mailadres in"
+              placeholder="Vul e-mailadressen in (; gescheiden)"
           />
           <br/>
           <button
               type="submit"
               class="mt-4 px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
+           >
             Verzenden
           </button>
+          <br/>
+          <p id="feedbackOK" class="accent-green-950 hidden">Succes</p>
+          <p id="feedbackNOK" class="accent-red-900 hidden">Niet OK</p>
         </form>
       </div>
       <script>
         function submitEmail(event) {
           event.preventDefault();
           const email = document.getElementById("email").value;
+          const feedbackOK = document.getElementById("feedbackOK");
+          const feedbackNOK = document.getElementById("feedbackNOK");
+          feedbackOK.style.display = "none";
+          feedbackNOK.style.display = "none";
           fetch('/vlaanderen.click/add', {
             method: 'POST',
             headers: {
@@ -43,10 +50,9 @@
           })
           .then(response => {
             if (response.ok) {
-              alert('E-mailadres succesvol verzonden!');
-              document.getElementById("emailForm").reset();
+              feedbackOK.style.display = "inline";
             } else {
-              alert('Er is een fout opgetreden bij het verzenden.');
+              feedbackNOK.style.display = "inline";
             }
           })
           .catch(() => {
@@ -60,13 +66,22 @@
       <button
           type="button"
           class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
-          onclick="downloadFile()"
+          onclick="downloadFile(true)"
       >
-        Download Data
+        Download User Data
+      </button>
+      <button
+          type="button"
+          class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+          onclick="downloadFile(false)"
+      >
+        Download QR Data
       </button>
       <script>
-        function downloadFile() {
-          fetch('/downloadUserClickData', {
+        function downloadFile(isUser) {
+          const input = isUser ? '/downloadUserClickData' : '/downloadQrData';
+          const downloadedFileName = isUser ? 'user_click_data.csv' : 'qr_data.csv';
+          fetch(input, {
             method: 'GET'
           })
           .then(response => {
@@ -82,7 +97,7 @@
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = 'user_click_data.csv';
+            a.download = downloadedFileName;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);

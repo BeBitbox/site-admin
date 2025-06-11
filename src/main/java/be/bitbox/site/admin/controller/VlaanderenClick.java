@@ -1,9 +1,12 @@
 package be.bitbox.site.admin.controller;
 
+import be.bitbox.site.admin.model.QRScan;
+import be.bitbox.site.admin.persistance.QRScanDAO;
 import be.bitbox.site.admin.service.UserCollector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +27,19 @@ public class VlaanderenClick {
   };
   private static final Logger log = LoggerFactory.getLogger(VlaanderenClick.class);
   private final UserCollector userCollector;
+  private final QRScanDAO qrScanDAO;
 
-  public VlaanderenClick(UserCollector userCollector) {
+  public VlaanderenClick(UserCollector userCollector, QRScanDAO qrScanDAO) {
     this.userCollector = userCollector;
+    this.qrScanDAO = qrScanDAO;
+  }
+
+  @GetMapping("/vlaanderen.click/qr")
+  public void initVlaanderenClick(HttpServletRequest request) {
+    log.info("VlaanderenClickMail qr");
+
+    var userAgent = request.getHeader("User-Agent");
+    qrScanDAO.appendToFile(new QRScan(LocalDateTime.now(), userAgent));
   }
 
   @PostMapping("/vlaanderen.click/add")
@@ -36,32 +49,29 @@ public class VlaanderenClick {
   }
 
   @PostMapping("/vlaanderen.click/init")
-  public void initVlaanderenClick(@RequestBody VlaanderenClickId id, HttpServletRequest request) {
+  public void initVlaanderenClick(@RequestBody VlaanderenClickId id) {
     log.info("VlaanderenClickMail init {}", id);
-
-    var userAgent = request.getHeader("User-Agent");
-    var clientIp = request.getRemoteAddr();
-    userCollector.update(id.id, userAgent, clientIp);
+    userCollector.websiteLoaded(id.id);
   }
 
   @PostMapping("/vlaanderen.click/register")
   public void registerVlaanderenClick(@RequestBody VlaanderenClickRegister vlaanderenClickRegister) {
     log.info("Received register for {}", vlaanderenClickRegister);
 
-    userCollector.update(vlaanderenClickRegister);
+    userCollector.step1(vlaanderenClickRegister);
   }
 
   @PostMapping("/vlaanderen.click/stap2")
-  public void stap2VlaanderenClick(@RequestBody VlaanderenClickStap2 vlaanderenClickStap2) {
-    log.info("Received stap2 for {}", vlaanderenClickStap2);
+  public void stap2VlaanderenClick(@RequestBody VlaanderenClickId id) {
+    log.info("Received stap2 for {}", id);
 
-    userCollector.update(vlaanderenClickStap2);
+    userCollector.step2(id.id);
   }
 
   @PostMapping("/vlaanderen.click/betalen")
-  public void betalen(@RequestBody VlaanderenBetaal id) {
+  public void betalen(@RequestBody VlaanderenClickId id) {
     log.info("Received betalen for {}", id);
-    userCollector.updateBetalen(id.id);
+    userCollector.step3(id.id);
   }
 
   @GetMapping("/vlaanderen.click/pixel/{id}")
@@ -82,20 +92,12 @@ public class VlaanderenClick {
       log.error("Error sending pixel data", e);
     }
   }
-  
-  public record VlaanderenClickRegister(String id, String voornaam, String achternaam, String email, String dienst) {
+
+  public record VlaanderenClickRegister(String id, String voornaam, String achternaam, String email, String functie, String organisatie, String telefoon) {
 
   }
 
-  public record VlaanderenClickStap2(String id, String badgenummer, String telefoon) {
-
-  }
-
-  private record VlaanderenClickId(String id) {
-
-  }
-
-  private record VlaanderenBetaal(String id, String methode) {
+  public record VlaanderenClickId(String id) {
 
   }
 }

@@ -2,26 +2,26 @@ package be.bitbox.site.admin.model;
 
 public class UserClick {
 
-  public static final String DELIMITER = "\t";
+  public static final String DELIMITER = ";";
+
   private final String id;
   private final String emailId;
   private boolean isSent;
-  private boolean mailOpened;
-  private String userAgent;
-  private String ip;
+  private int mailOpened;
+  private boolean webpageVisited;
   private String voornaam;
   private String achternaam;
   private String email;
-  private String dienst;
-  private String badgeNummer;
   private String telefoonNummer;
-  private boolean betalingAfgehandeld;
+  private String functie;
+  private String organisatie;
+  private boolean stap1;
+  private boolean stap2;
+  private boolean stap3;
 
   public UserClick(String id, String emailId) {
     this.id = id;
     this.emailId = emailId;
-    this.isSent = false;
-    this.mailOpened = false;
   }
 
   // region Getters
@@ -37,12 +37,12 @@ public class UserClick {
     return isSent;
   }
 
-  public String userAgent() {
-    return userAgent;
+  public int mailOpened() {
+    return mailOpened;
   }
 
-  public String ip() {
-    return ip;
+  public boolean webpageVisited() {
+    return webpageVisited;
   }
 
   public String voornaam() {
@@ -57,25 +57,30 @@ public class UserClick {
     return email;
   }
 
-  public String dienst() {
-    return dienst;
-  }
-
-  public String badgeNummer() {
-    return badgeNummer;
-  }
-
   public String telefoonNummer() {
     return telefoonNummer;
   }
 
-  public boolean mailOpened() {
-    return mailOpened;
+  public String functie() {
+    return functie;
   }
 
-  public boolean betalingAfgehandeld() {
-    return betalingAfgehandeld;
+  public String organisatie() {
+    return organisatie;
   }
+
+  public boolean stap1() {
+    return stap1;
+  }
+
+  public boolean stap2() {
+    return stap2;
+  }
+
+  public boolean stap3() {
+    return stap3;
+  }
+
   // endregion
 
   // region Setters
@@ -83,12 +88,8 @@ public class UserClick {
     isSent = sent;
   }
 
-  public void setUserAgent(String userAgent) {
-    this.userAgent = userAgent;
-  }
-
-  public void setIp(String ip) {
-    this.ip = ip;
+  public void setWebpageVisited(boolean webpageVisited) {
+    this.webpageVisited = webpageVisited;
   }
 
   public void setVoornaam(String voornaam) {
@@ -103,63 +104,83 @@ public class UserClick {
     this.email = email;
   }
 
-  public void setDienst(String dienst) {
-    this.dienst = dienst;
-  }
-
-  public void setBadgeNummer(String badgeNummer) {
-    this.badgeNummer = badgeNummer;
-  }
-
   public void setTelefoonNummer(String telefoonNummer) {
     this.telefoonNummer = telefoonNummer;
   }
 
-  public void setMailOpened(boolean mailOpened) {
-    this.mailOpened = mailOpened;
+  public void setFunctie(String functie) {
+    this.functie = functie;
   }
 
-  public void setBetalingAfgehandeld(boolean betalingAfgehandeld) {
-    this.betalingAfgehandeld = betalingAfgehandeld;
+  public void setOrganisatie(String organisatie) {
+    this.organisatie = organisatie;
+  }
+
+  public void setStap1(boolean stap1) {
+    this.stap1 = stap1;
+  }
+
+  public void setStap2(boolean stap2) {
+    this.stap2 = stap2;
+  }
+
+  public void setStap3(boolean stap3) {
+    this.stap3 = stap3;
   }
   // endregion
 
-  public static UserClick fromString(String cv) {
-    if (cv == null || cv.isEmpty()) {
-      throw new IllegalArgumentException("Input string cannot be null or empty");
-    }
-    String[] fields = cv.split(DELIMITER);
-    if (fields.length != 13) {
-      throw new IllegalArgumentException("Input string does not match expected format");
-    }
-    UserClick userClick = new UserClick(fields[0], fields[1]);
-    userClick.isSent = Boolean.parseBoolean(fields[2]);
-    userClick.mailOpened = Boolean.parseBoolean(fields[3]);
-    userClick.userAgent = fields[4];
-    userClick.ip = fields[5];
-    userClick.voornaam = fields[6];
-    userClick.achternaam = fields[7];
-    userClick.email = fields[8];
-    userClick.dienst = fields[9];
-    userClick.badgeNummer = fields[10];
-    userClick.telefoonNummer = fields[11];
-    userClick.betalingAfgehandeld = Boolean.parseBoolean(fields[12]);
-    return userClick;
+  public void incrementMailOpened() {
+    mailOpened++;
   }
 
+  public static UserClick fromString(String input) {
+    String[] parts = input.split(DELIMITER);
+
+    if (parts.length != 14) {
+      throw new IllegalArgumentException("Input string does not contain the correct number of fields.");
+    }
+
+    UserClick userClick = new UserClick(parts[0], parts[1]);
+    userClick.setSent(Boolean.parseBoolean(parts[2]));
+    userClick.mailOpened = Integer.parseInt(parts[3]);
+    userClick.setWebpageVisited(Boolean.parseBoolean(parts[4]));
+    userClick.setVoornaam(parts[5]);
+    userClick.setAchternaam(parts[6]);
+    userClick.setEmail(parts[7]);
+    userClick.setTelefoonNummer(parts[8]);
+    userClick.setFunctie(parts[9]);
+    userClick.setOrganisatie(parts[10]);
+    userClick.setStap1(Boolean.parseBoolean(parts[11]));
+    userClick.setStap2(Boolean.parseBoolean(parts[12]));
+    userClick.setStap3(Boolean.parseBoolean(parts[13]));
+
+    return userClick;
+  }
+  
   @Override
   public String toString() {
-    return id + DELIMITER + emailId + DELIMITER + isSent + DELIMITER
-        + mailOpened + DELIMITER + userAgent + DELIMITER + ip + DELIMITER
-        + voornaam + DELIMITER + achternaam + DELIMITER + email + DELIMITER + dienst + DELIMITER
-        + badgeNummer + DELIMITER + telefoonNummer + DELIMITER + betalingAfgehandeld;
+    return id + DELIMITER + emailId + DELIMITER + isSent + DELIMITER + mailOpened +
+        DELIMITER + webpageVisited + DELIMITER + voornaam + DELIMITER + achternaam +
+        DELIMITER + email + DELIMITER + telefoonNummer + DELIMITER + functie +
+        DELIMITER + organisatie + DELIMITER + stap1 + DELIMITER + stap2 + DELIMITER + stap3;
   }
 
   public static String fieldNames() {
-    return "id" + DELIMITER + "emailId" + DELIMITER + "isSent" + DELIMITER
-        + "mailOpened" + DELIMITER + "userAgent" + DELIMITER + "ip" + DELIMITER
-        + "voornaam" + DELIMITER + "achternaam" + DELIMITER + "email" + DELIMITER + "dienst" + DELIMITER
-        + "badgenummer" + DELIMITER + "telefoon" + DELIMITER + "betalingAfgehandeld";
+    return 
+        "id" + DELIMITER +
+        "emailId" + DELIMITER +
+        "isSent" + DELIMITER +
+        "mailOpened" + DELIMITER +
+        "webpageVisited" + DELIMITER +
+        "voornaam" + DELIMITER +
+        "achternaam" + DELIMITER +
+        "email" + DELIMITER +
+        "telefoonNummer" + DELIMITER +
+        "functie" + DELIMITER +
+        "organisatie" + DELIMITER +
+        "stap1" + DELIMITER +
+        "stap2" + DELIMITER +
+        "stap3";
   }
 
   @Override

@@ -1,5 +1,8 @@
 package be.bitbox.site.admin;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 public class Util {
@@ -24,5 +27,10 @@ public class Util {
     }
 
     return randomString.toString();
+  }
+
+  public static String toLocalDateTimeString(LocalDateTime localDateTime) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    return localDateTime.atZone(ZoneId.of("Europe/Paris")).format(formatter);
   }
 }

@@ -2,9 +2,9 @@ package be.bitbox.site.admin.service;
 
 import be.bitbox.site.admin.Util;
 import be.bitbox.site.admin.controller.VlaanderenClick.VlaanderenClickRegister;
-import be.bitbox.site.admin.controller.VlaanderenClick.VlaanderenClickStap2;
 import be.bitbox.site.admin.model.UserClick;
 import be.bitbox.site.admin.persistance.UserClickDAO;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class UserCollector {
 
   private static final Logger log = LoggerFactory.getLogger(UserCollector.class);
+  public static final String EMAIL_DELIMITER = ";";
   private final UserClickDAO userClickDAO;
   private final SESService sesService;
 
@@ -21,27 +22,31 @@ public class UserCollector {
     this.sesService = sesService;
   }
 
-  public void insert(String emailToSend) {
+  public void insert(String emailsToSend) {
+    var emails = emailsToSend.trim().split(EMAIL_DELIMITER);
+
     var userClicks = userClickDAO.getUserClicksFromCSV();
 
-    var userClickOptional = userClicks.stream()
-        .filter(userClick -> userClick.emailId().equals(emailToSend))
-        .findAny();
-    if (userClickOptional.isPresent()) {
-      throw new IllegalArgumentException("User clicks already exists");
+    for (String emailToSend : emails) {
+      var userClickOptional = userClicks.stream()
+          .filter(userClick -> userClick.emailId().equals(emailToSend))
+          .findAny();
+      if (userClickOptional.isPresent()) {
+        log.info("Email already exists: {}", emailToSend);
+      } else {
+        var userClick = new UserClick(Util.generateRandomId(), emailToSend);
+        log.info("Inserting user click {} - {}", userClick.id(), userClick.emailId());
+        userClicks.add(userClick);
+        userClickDAO.saveUserClicksToCSV(userClicks);
+
+        sesService.sendEventInvitation(userClick.id(), userClick.emailId());
+        userClick.setSent(true);
+        userClickDAO.saveUserClicksToCSV(userClicks);
+      }
     }
-
-    var userClick = new UserClick(Util.generateRandomId(), emailToSend);
-    log.info("Inserting user click {} - {}", userClick.id(), userClick.emailId());
-    userClicks.add(userClick);
-    userClickDAO.saveUserClicksToCSV(userClicks);
-
-    sesService.sendEventInvitation(userClick.id(), userClick.emailId());
-    userClick.setSent(true);
-    userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
-  public void update(String id, String userAgent, String ip) {
+  private void update(String id, Consumer<UserClick> consumer) {
     var userClicks = userClickDAO.getUserClicksFromCSV();
 
     var userClick = userClicks.stream()
@@ -49,63 +54,36 @@ public class UserCollector {
         .findAny()
         .orElseThrow();
 
-    userClick.setUserAgent(userAgent);
-    userClick.setIp(ip);
-    userClickDAO.saveUserClicksToCSV(userClicks);
-  }
+    consumer.accept(userClick);
 
-  public void updateBetalen(String id) {
-    var userClicks = userClickDAO.getUserClicksFromCSV();
-
-    var userClick = userClicks.stream()
-        .filter(click -> click.id().equals(id))
-        .findAny()
-        .orElseThrow();
-
-    userClick.setBetalingAfgehandeld(true);
     userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
   public void mailOpened(String id) {
-    var userClicks = userClickDAO.getUserClicksFromCSV();
-
-    userClicks.stream()
-        .filter(click -> click.id().equals(id))
-        .findAny()
-        .ifPresent(userClick -> {
-          userClick.setMailOpened(true);
-        });
-
-    userClickDAO.saveUserClicksToCSV(userClicks);
+    update(id, UserClick::incrementMailOpened);
   }
 
-  public void update(VlaanderenClickRegister vlaanderenClickRegister) {
-    var userClicks = userClickDAO.getUserClicksFromCSV();
-
-    var userClick = userClicks.stream()
-        .filter(click -> click.id().equals(vlaanderenClickRegister.id()))
-        .findAny()
-        .orElseThrow();
-
-    userClick.setVoornaam(vlaanderenClickRegister.voornaam());
-    userClick.setAchternaam(vlaanderenClickRegister.achternaam());
-    userClick.setEmail(vlaanderenClickRegister.email());
-    userClick.setDienst(vlaanderenClickRegister.dienst());
-
-    userClickDAO.saveUserClicksToCSV(userClicks);
+  public void websiteLoaded(String id) {
+    update(id, userClick -> userClick.setWebpageVisited(true));
   }
 
-  public void update(VlaanderenClickStap2 vlaanderenClickStap2) {
-    var userClicks = userClickDAO.getUserClicksFromCSV();
+  public void step1(VlaanderenClickRegister vlaanderenClickRegister) {
+    update(vlaanderenClickRegister.id(), userClick -> {
+      userClick.setVoornaam(vlaanderenClickRegister.voornaam());
+      userClick.setAchternaam(vlaanderenClickRegister.achternaam());
+      userClick.setEmail(vlaanderenClickRegister.email());
+      userClick.setFunctie(vlaanderenClickRegister.functie());
+      userClick.setOrganisatie(vlaanderenClickRegister.organisatie());
+      userClick.setTelefoonNummer(vlaanderenClickRegister.telefoon());
+      userClick.setStap1(true);
+    });
+  }
 
-    var userClick = userClicks.stream()
-        .filter(click -> click.id().equals(vlaanderenClickStap2.id()))
-        .findAny()
-        .orElseThrow();
+  public void step2(String id) {
+    update(id, userClick -> userClick.setStap2(true));
+  }
 
-    userClick.setBadgeNummer(vlaanderenClickStap2.badgenummer());
-    userClick.setTelefoonNummer(vlaanderenClickStap2.telefoon());
-
-    userClickDAO.saveUserClicksToCSV(userClicks);
+  public void step3(String id) {
+    update(id, userClick -> userClick.setStap3(true));
   }
 }

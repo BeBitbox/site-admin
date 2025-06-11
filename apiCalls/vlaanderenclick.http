@@ -3,7 +3,7 @@ POST http://localhost:8081/vlaanderen.click/add
 Content-Type: application/json
 
 {
-  "id": "jos@bitbox.be"
+  "id": "ejos@bitbox.be"
 }
 
 #### Initialize user
@@ -11,7 +11,7 @@ POST http://localhost:8081/vlaanderen.click/init
 Content-Type: application/json
 
 {
-  "id": "y2uSxbnixq"
+  "id": "KhzJ8D4oEZ"
 }
 
 #### Register
@@ -19,11 +19,13 @@ POST http://localhost:8081/vlaanderen.click/register
 Content-Type: application/json
 
 {
-  "id": "y2uSxbnixq",
+  "id": "KhzJ8D4oEZ",
   "voornaam": "Jos",
   "achternaam": "Vermeulen",
   "email": "jos@vermeulen.be",
-  "dienst": "Concierges"
+  "functie": "Concierges",
+  "organisatie": "Vermeulen Projects",
+  "telefoon": "0454588"
 }
 
 ###
@@ -31,9 +33,7 @@ POST http://localhost:8081/vlaanderen.click/stap2
 Content-Type: application/json
 
 {
-  "id": "y2uSxbnixq",
-  "badgeNummer": "1245678903",
-  "telefoonNummer": "00000"
+  "id": "KhzJ8D4oEZ"
 }
 
 ###
@@ -41,6 +41,5 @@ POST http://localhost:8081/vlaanderen.click/betalen
 Content-Type: application/json
 
 {
-  "id": "y2uSxbnixq",
-  "methode": "boncatct"
+  "id": "KhzJ8D4oEZ"
 }
