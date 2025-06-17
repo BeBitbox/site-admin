@@ -11,7 +11,7 @@ POST http://localhost:8081/vlaanderen.click/init
 Content-Type: application/json
 
 {
-  "id": "KhzJ8D4oEZ"
+  "id": "Txg0KzjA8S"
 }
 
 #### Register
@@ -19,7 +19,7 @@ POST http://localhost:8081/vlaanderen.click/register
 Content-Type: application/json
 
 {
-  "id": "KhzJ8D4oEZ",
+  "id": "Txg0KzjA8S",
   "voornaam": "Jos",
   "achternaam": "Vermeulen",
   "email": "jos@vermeulen.be",
@@ -33,7 +33,7 @@ POST http://localhost:8081/vlaanderen.click/stap2
 Content-Type: application/json
 
 {
-  "id": "KhzJ8D4oEZ"
+  "id": "Txg0KzjA8S"
 }
 
 ###
@@ -41,5 +41,5 @@ POST http://localhost:8081/vlaanderen.click/betalen
 Content-Type: application/json
 
 {
-  "id": "KhzJ8D4oEZ"
+  "id": "Txg0KzjA8S"
 }

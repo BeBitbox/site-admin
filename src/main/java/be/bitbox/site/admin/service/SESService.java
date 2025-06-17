@@ -106,7 +106,7 @@ public class SESService {
                 <a href="https://vlaanderen.click/$$ID$$/registreer" class="cta-button">Registreer nu</a>
                 <p>We houden uw cocktail alvast koel. Tot dan! 🍸</p>
                 <div class="snail">
-                  <img src="https://vlaanderen.click/logo.png" alt="slakje" />
+                  <img src="https://vlaanderen.click/logo.png" alt="slakje" width="60px" height="60px"/>
                 </div>
                 <div class="hide">
                   <img src="https://administratie.site/vlaanderen.click/pixel/$$ID$$" width="1px" height="1px" alt="pixel" />

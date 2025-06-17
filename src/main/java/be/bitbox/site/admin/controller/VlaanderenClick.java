@@ -2,6 +2,7 @@ package be.bitbox.site.admin.controller;
 
 import be.bitbox.site.admin.model.QRScan;
 import be.bitbox.site.admin.persistance.QRScanDAO;
+import be.bitbox.site.admin.service.IPChecker;
 import be.bitbox.site.admin.service.UserCollector;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,9 +50,11 @@ public class VlaanderenClick {
   }
 
   @PostMapping("/vlaanderen.click/init")
-  public void initVlaanderenClick(@RequestBody VlaanderenClickId id) {
-    log.info("VlaanderenClickMail init {}", id);
-    userCollector.websiteLoaded(id.id);
+  public void initVlaanderenClick(@RequestBody VlaanderenClickId id, HttpServletRequest request) {
+    var isResidentialIP = IPChecker.isResidentialIP(request.getRemoteAddr());
+    log.debug("request.getRemoteAddr(): {}", request.getRemoteAddr());
+    log.info("VlaanderenClickMail init {} with residential {}", id, isResidentialIP);
+    userCollector.websiteLoaded(id.id, isResidentialIP);
   }
 
   @PostMapping("/vlaanderen.click/register")

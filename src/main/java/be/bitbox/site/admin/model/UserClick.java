@@ -8,7 +8,8 @@ public class UserClick {
   private final String emailId;
   private boolean isSent;
   private int mailOpened;
-  private boolean webpageVisited;
+  private int pageOpenedScanner;
+  private int pageOpenedUser;
   private String voornaam;
   private String achternaam;
   private String email;
@@ -41,8 +42,12 @@ public class UserClick {
     return mailOpened;
   }
 
-  public boolean webpageVisited() {
-    return webpageVisited;
+  public int pageOpenedScanner() {
+    return pageOpenedScanner;
+  }
+
+  public int pageOpenedUser() {
+    return pageOpenedUser;
   }
 
   public String voornaam() {
@@ -88,10 +93,6 @@ public class UserClick {
     isSent = sent;
   }
 
-  public void setWebpageVisited(boolean webpageVisited) {
-    this.webpageVisited = webpageVisited;
-  }
-
   public void setVoornaam(String voornaam) {
     this.voornaam = voornaam;
   }
@@ -133,26 +134,35 @@ public class UserClick {
     mailOpened++;
   }
 
+  public void incrementPageOpenedScanner() {
+    pageOpenedScanner++;
+  }
+
+  public void incrementPageOpenedUser() {
+    pageOpenedUser++;
+  }
+
   public static UserClick fromString(String input) {
     String[] parts = input.split(DELIMITER);
 
-    if (parts.length != 14) {
+    if (parts.length != 15) {
       throw new IllegalArgumentException("Input string does not contain the correct number of fields.");
     }
 
     UserClick userClick = new UserClick(parts[0], parts[1]);
     userClick.setSent(Boolean.parseBoolean(parts[2]));
     userClick.mailOpened = Integer.parseInt(parts[3]);
-    userClick.setWebpageVisited(Boolean.parseBoolean(parts[4]));
-    userClick.setVoornaam(parts[5]);
-    userClick.setAchternaam(parts[6]);
-    userClick.setEmail(parts[7]);
-    userClick.setTelefoonNummer(parts[8]);
-    userClick.setFunctie(parts[9]);
-    userClick.setOrganisatie(parts[10]);
-    userClick.setStap1(Boolean.parseBoolean(parts[11]));
-    userClick.setStap2(Boolean.parseBoolean(parts[12]));
-    userClick.setStap3(Boolean.parseBoolean(parts[13]));
+    userClick.pageOpenedScanner = Integer.parseInt(parts[4]);
+    userClick.pageOpenedUser = Integer.parseInt(parts[5]);
+    userClick.setVoornaam(parts[6]);
+    userClick.setAchternaam(parts[7]);
+    userClick.setEmail(parts[8]);
+    userClick.setTelefoonNummer(parts[9]);
+    userClick.setFunctie(parts[10]);
+    userClick.setOrganisatie(parts[11]);
+    userClick.setStap1(Boolean.parseBoolean(parts[12]));
+    userClick.setStap2(Boolean.parseBoolean(parts[13]));
+    userClick.setStap3(Boolean.parseBoolean(parts[14]));
 
     return userClick;
   }
@@ -160,7 +170,8 @@ public class UserClick {
   @Override
   public String toString() {
     return id + DELIMITER + emailId + DELIMITER + isSent + DELIMITER + mailOpened +
-        DELIMITER + webpageVisited + DELIMITER + voornaam + DELIMITER + achternaam +
+        DELIMITER + pageOpenedScanner + DELIMITER + pageOpenedUser +
+        DELIMITER + voornaam + DELIMITER + achternaam +
         DELIMITER + email + DELIMITER + telefoonNummer + DELIMITER + functie +
         DELIMITER + organisatie + DELIMITER + stap1 + DELIMITER + stap2 + DELIMITER + stap3;
   }
@@ -171,7 +182,8 @@ public class UserClick {
         "emailId" + DELIMITER +
         "isSent" + DELIMITER +
         "mailOpened" + DELIMITER +
-        "webpageVisited" + DELIMITER +
+        "pageOpenedScanner" + DELIMITER +
+        "pageOpenedUser" + DELIMITER +
         "voornaam" + DELIMITER +
         "achternaam" + DELIMITER +
         "email" + DELIMITER +

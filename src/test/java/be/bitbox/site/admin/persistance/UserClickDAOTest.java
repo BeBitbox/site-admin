@@ -40,7 +40,8 @@ class UserClickDAOTest {
     assertThat(loadedSingleClick.emailId()).isEqualTo(singleUserClick.emailId());
     assertThat(loadedSingleClick.isSent()).isEqualTo(singleUserClick.isSent());
     assertThat(loadedSingleClick.mailOpened()).isEqualTo(singleUserClick.mailOpened());
-    assertThat(loadedSingleClick.webpageVisited()).isEqualTo(singleUserClick.webpageVisited());
+    assertThat(loadedSingleClick.pageOpenedScanner()).isEqualTo(singleUserClick.pageOpenedScanner());
+    assertThat(loadedSingleClick.pageOpenedUser()).isEqualTo(singleUserClick.pageOpenedUser());
     assertThat(loadedSingleClick.voornaam()).isEqualTo(singleUserClick.voornaam());
     assertThat(loadedSingleClick.achternaam()).isEqualTo(singleUserClick.achternaam());
     assertThat(loadedSingleClick.email()).isEqualTo(singleUserClick.email());
@@ -61,7 +62,9 @@ class UserClickDAOTest {
     userClick.setSent(true);
     userClick.incrementMailOpened();
     userClick.incrementMailOpened();
-    userClick.setWebpageVisited(true);
+    userClick.incrementPageOpenedScanner();
+    userClick.incrementPageOpenedUser();
+    userClick.incrementPageOpenedUser();
     userClick.setVoornaam("John");
     userClick.setAchternaam("Doe");
     userClick.setEmail("john.doe@example.com");
