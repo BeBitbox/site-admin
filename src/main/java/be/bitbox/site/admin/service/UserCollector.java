@@ -46,15 +46,20 @@ public class UserCollector {
 
           var userClick = new UserClick(Util.generateRandomId(), emailToSend);
           log.info("Inserting user click {} - {}", userClick.id(), userClick.emailId());
-          userClicks.add(userClick);
-          userClickDAO.saveUserClicksToCSV(userClicks);
-
-          sesService.sendEventInvitation(userClick.id(), userClick.emailId());
-          userClick.setSent(true);
-          userClickDAO.saveUserClicksToCSV(userClicks);
+          send(userClick);
         }
       }
     });
+  }
+
+  private synchronized void send(UserClick userClick) {
+    var userClicks = userClickDAO.getUserClicksFromCSV();
+    userClicks.add(userClick);
+    userClickDAO.saveUserClicksToCSV(userClicks);
+
+    sesService.sendEventInvitation(userClick.id(), userClick.emailId());
+    userClick.setSent(true);
+    userClickDAO.saveUserClicksToCSV(userClicks);
   }
 
   private void update(String id, Consumer<UserClick> consumer) {
